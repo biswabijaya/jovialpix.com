@@ -1,0 +1,111 @@
+<?php
+include("../includes/db.php");
+if (isset($_GET['action']) and $_GET['action']=='view') {
+  $id=$_GET['id'];
+  if ($result=mysqli_query($mysqli,"SELECT * from users where id=$id")) {
+    while ($row=mysqli_fetch_array($result)) {
+      echo '<form id="formuser" method="POST">';
+        echo '<div class="row justify-column-center">';
+          echo '<div class="col-5 col-sm-3  text-center">';
+            echo '<div class="row">';
+              echo '<div class="col text-center">';
+              echo '<center><img class="img img-card card" src="assets/images/users/'.$row['profileicon'].'" style="width: 100px; height: 100px; border-radius: 50%;"></center>';
+              echo '<a href="assets/images/users?setname='.$row['username'].'&name='.substr($row['profileicon'], 0, -4).'">Edit Photo</a>';
+              echo '</div>';
+            echo '</div>';
+          echo '</div>';
+          echo '<div class="col">';
+            echo '<div class="row">';
+              echo '<div class="col-sm-6">';
+                echo '<label>Name</label>';
+                echo '<input type="hidden" id="userid" name="userid" value="'.$row['id'].'">';
+                echo '<input type="text" id="fullname" name="fullname" class="form-control" value="'.$row['fullname'].'">';
+              echo '</div>';
+              echo '<div class="col-sm-6">';
+                echo '<label>Username</label>';
+                echo '<input type="text" id="username" name="username" class="form-control" value="'.$row['username'].'">';
+              echo '</div>';
+            echo '</div>';
+          echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+          echo '<div class="col">';
+          echo '<hr>';
+          echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+          echo '<div class="col">';
+            echo '<label>Email ID</label>';
+            echo '<input type="text" id="email" name="email" class="form-control" value="'.$row['email'].'">';
+          echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+          echo '<div class="col">';
+            echo '<label>Contact No.</label>';
+            echo '<input type="text" id="cno" name="cno" class="form-control" value="'.$row['cno'].'">';
+          echo '</div>';
+          echo '<div class="col">';
+            echo '<label>Whatsapp No.</label>';
+            echo '<input type="text" id="cno" name="wno" class="form-control" value="'.$row['wno'].'">';
+          echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+          echo '<div class="col">';
+            echo '<label>Member Type</label>';
+            echo '<input type="text" id="membertype" name="membertype" class="form-control" value="'.$row['membertype'].'">';
+          echo '</div>';
+          echo '<div class="col">';
+            echo '<label>Web Access</label>';
+            echo '<select class="form-control" id="usertype" name="usertype">';
+              if($row['usertype']=='admin') $print="selected"; else $print=" ";
+              echo '<option '.$print.'>admin</option>';
+              if($row['usertype']=='blog') $print="selected"; else $print=" ";
+              echo '<option '.$print.'>blog</option>';
+              if($row['usertype']=='manager') $print="selected"; else $print=" ";
+              echo '<option '.$print.'>manager</option>';
+              if($row['usertype']=='user') $print="selected"; else $print=" ";
+              echo '<option '.$print.'>user</option>';
+            echo '</select>';
+          echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+          echo '<div class="col">';
+            echo '<label>Bio</label>';
+            echo '<input type="text" id="bio" name="bio" class="form-control" value="'.$row['bio'].'">';
+          echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+          echo '<div class="col">';
+            echo '<label>DOB</label>';
+            echo '<input type="date" id="dob" name="dob" class="form-control" value="'.$row['dob'].'">';
+          echo '</div>';
+          echo '<div class="col">';
+            echo '<label>DOJ</label>';
+            echo '<input type="date" id="doj" name="doj" class="form-control" value="'.$row['doj'].'">';
+          echo '</div>';
+          echo '<div class="col">';
+            echo '<label>Status</label>';
+            echo '<select class="form-control" id="status" name="status">';
+              if($row['status']==0) $print="selected"; else $print=" ";
+              echo '<option value="0" '.$print.'>Not Active</option>';
+              if($row['status']==1) $print="selected"; else $print=" ";
+              echo '<option value="1" '.$print.'>Active</option>';
+              if($row['status']==2) $print="selected"; else $print=" ";
+              echo '<option value="2" '.$print.'>Resigned</option>';
+              if($row['status']==3) $print="selected"; else $print=" ";
+              echo '<option value="3" '.$print.'>Banned</option>';
+            echo '</select>';
+          echo '</div>';
+          if ($row['status']>=2) {
+            echo '<div class="col">';
+              echo '<label>DOL</label>';
+              echo '<input type="date" id="dol" name="dol" class="form-control" value="'.$row['dol'].'">';
+            echo '</div>';
+          }
+        echo '</div>';
+        echo '<input type="hidden" name="action" value="update">';
+      echo '</form>';
+    }
+  }
+}
+?>
