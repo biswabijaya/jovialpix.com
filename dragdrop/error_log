@@ -1,1 +1,0 @@
-[25-Apr-2019 12:19:20 UTC] PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'root'@'localhost' (using password: YES) in /home/u333976797/domains/p4.pe.hu/public_html/dragdrop/DB.class.php on line 13
