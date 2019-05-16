@@ -2,7 +2,9 @@ Pednding Worklist. (Priority 5>>3>>1)
 
 List-Current Priority-Work
 1 - 5 - Rotate option in gallery - ******
-2 - 3 - Option to crop square/rectangular in gallery 
+
+2 - 3 - Option to crop square/rectangular in gallery  
+
 3 - 3 - Set image eligibility in pick-images
 4 - 2 - Design Listing
 5 - 2 - Cart option with checkout and coupon
