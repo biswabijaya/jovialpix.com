@@ -3,7 +3,7 @@ include 'components/includes/db.php';
 
 if (!isset($_SESSION['usertype'])) {
    header("Location: index");
- }
+}
 
 //default initialisations
 $page="settings";
