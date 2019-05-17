@@ -15,31 +15,86 @@
             <div class="rd-navbar-nav-wrap">
               <!-- RD Navbar Basket-->
                  <div class="rd-navbar-basket-wrap">
-                <button class="rd-navbar-basket fl-bigmug-line-shopping198" data-rd-navbar-toggle=".cart-inline"><span>0</span></button>
-                <!-- <div class="cart-inline">
-                  <div class="cart-inline-header">
-                    <h5 class="cart-inline-title">In cart:<span> 1</span> Product</h5>
-                    <h6 class="cart-inline-title">Total price:<span> $800</span></h6>
-                  </div>
-                  <div class="cart-inline-body">
-                    <div class="cart-inline-item">
-                      <div class="unit align-items-center">
-                        <div class="unit-left"><a class="cart-inline-figure" href="#"><img src="//www.jovialpix.com/website/assets/images/product-mini-2-108x100.png" alt="" width="108" height="100"/></a></div>
-                        <div class="unit-body">
-                          <h6 class="cart-inline-name"><a href="#">Avocados</a></h6>
-                          <div>
-                            <div class="group-xs group-inline-middle">
-                              <h6 class="cart-inline-title">$250</h6>
+                <button class="rd-navbar-basket fl-bigmug-line-shopping198" data-rd-navbar-toggle=".cart-inline"><span id="cartitemcount">0</span></button>
+                <?php
+                if (isset($_SESSION['cart'])) {
+                  $cartid=$_SESSION['cart'];
+                  $itemCount=$totalAmount=0;
+
+
+                  echo '
+                  <div class="cart-inline">
+                    <div class="cart-inline-header">
+                      <div class="group-sm"><a id="checkout" class="button button-md button-primary button-pipaluk" href="app/checkout">Checkout</a></div>
+                    </div>';
+                  if($result = mysqli_query($mysqli, "SELECT * From orderitems where orderid=$cartid")){
+                    while($res = mysqli_fetch_array($result)){
+                      $designid=$res['designid'];
+                      $designPrice=0;
+
+                    //get design details
+                    if($resul = mysqli_query($mysqli, "SELECT * From designs where id=$designid")){
+                      while($re = mysqli_fetch_array($resul)){
+                        $productid=$re['productid'];
+                        $designName=$re['name'];
+                      }
+                    }
+
+                    //get design first thumb
+                    if($resul = mysqli_query($mysqli, "SELECT * From design_images where designid=$designid and img_order=1")){
+                      while($re = mysqli_fetch_array($resul)){
+                        $designThumb=$re['file_name'];
+                      }
+                    }
+
+                    //get prod details
+                    if ($resul = mysqli_query($mysqli, "SELECT * from products where id='$productid'")) {
+                      while($re = mysqli_fetch_array($resul)){
+                      $designPrice=$re['price'];
+                      $productName=$re['name'];
+                      }
+                    }
+
+                    //get prod addon price
+                    if ($resul = mysqli_query($mysqli, "SELECT * from design_variants where designid=$designid")) {
+                      while($re = mysqli_fetch_array($resul)){
+                      $designPrice+=$re['price'];
+                      }
+                    }
+                    echo '
+                    <div id="'.$res['id'].'div" class="cart-inline-body">
+                      <div class="cart-inline-item">
+                        <div class="unit align-items-center">
+                          <div class="unit-left"><a class="cart-inline-figure" href="app/quickview/name='.$designName.'"><img src="app/gallery/thumbs/'.$designThumb.'" alt="'.$designName.'" style="width:100px"></a></div>
+                          <div class="unit-body">
+                            <h6 class="cart-inline-name"><a href="app/quickview/name='.$designName.'">'.$productName.'</a></h6>
+                            <div>
+                              <div class="group-xs group-inline-middle">
+                                <div class="table-cart-stepper">
+                                  <input id="'.$res['id'].'" class="form-input" type="number" data-price="'.$designPrice.'" onchange="updatecart('.$res['id'].')" value="'.$res['quantity'].'" max="10">
+                                </div>
+                                <h6 class="cart-inline-title"> Rs<span id="'.$res['id'].'price">'.$designPrice*$res['quantity'].'</span</h6>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
+                    </div>';
+                    $itemCount++;
+                    $totalAmount+=$designPrice*$res['quantity'];
+                    }
+                  }
+                  echo' <script> $("#cartitemcount").html("'.$itemCount.'"); if(parseInt($("#cartitemcount").html())==0){$("#checkout").slideUp();}</script>
+                    <div class="cart-inline-footer">
+                      <p class="mt-1 cart-inline-title">Product(s) : <span id="cartinlineitemcount"> '.$itemCount.' </span>  </p>
+                      <p class="mt-1 cart-inline-title">Price: Rs<span id="cartinlinetotalprice" data-value="'.$totalAmount.'">'.money_format('%!i', $totalAmount).'</span> </p><p class="mt-1">(excl. shipping charges & GST )</p>
                     </div>
-                  </div>
-                  <div class="cart-inline-footer">
-                    <div class="group-sm"><a class="button button-md button-default-outline-2 button-wapasha" href="#">Go to cart</a><a class="button button-md button-primary button-pipaluk" href="#">Checkout</a></div>
-                  </div>
-                </div>-->
+                  </div>';
+                } else {
+                  echo '';
+                }
+                ?>
+
               </div><a class="rd-navbar-basket rd-navbar-basket-mobile fl-bigmug-line-shopping198" href="#"><span>0</span></a>
 
               <ul class="rd-navbar-nav">
@@ -125,3 +180,45 @@
     </nav>
   </div>
 </header>
+
+<script type="text/javascript">
+  function updatecart(id){
+    var initialprice = parseInt($("#"+id+"price").html());
+    var price = $("#"+id).attr("data-price");
+    var quantity = $("#"+id).val();
+    var finalprice = price*quantity
+    var diff = initialprice-finalprice;
+    updateOrderQtyinDB(id,quantity);
+
+    $("#"+id+"price").html(finalprice);
+
+    if(quantity==0){
+      $("#"+id+"div").slideUp();
+      var qty = parseInt($("#cartitemcount").html());
+      qty-=1;
+      $("#cartinlineitemcount").html(qty);
+
+      if(qty==0){
+        $("#checkout").slideUp();
+      }
+    }
+      var prc = parseInt($("#cartinlinetotalprice").html());
+      $("#cartinlinetotalprice").html(prc-diff);
+  }
+
+  function updateOrderQtyinDB(idn,qtyn){
+    $.ajax({
+      url:'updatebyajax.php',
+      type:'GET',
+      data:{
+        id:idn,
+        qty:qtyn,
+        action:'updateorderquantity',
+      },
+      dataType:'html',   //expect html to be returned
+      success: function(response){
+          alert(response);
+      }
+    });
+  }
+</script>

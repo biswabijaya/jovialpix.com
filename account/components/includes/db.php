@@ -20,6 +20,44 @@ $_SESSION['DIR']="jovialpix.com";
 $cname="JovialPix";
 $active=" ";
 
+
+//cart & order management program
+
+//check if user is logged in
+if (isset($_SESSION['id'])) {
+  $userId=$_SESSION['id'];
+  //if cart is not initiated
+  if (!isset($_SESSION['cart'])) {
+    // check for any active order in db
+    $activeOrder=0;
+
+    if($result = mysqli_query($mysqli, "SELECT id From orders where userid=$userId and status=1")){
+    while($res = mysqli_fetch_array($result)){
+        $activeOrder=$res['id'] ; //order id is used to handle persistent cart
+      }
+    }
+
+    // case: active order not found = create order id and fetch it back
+    if ($activeOrder==0){
+      $temptoken=getUToken(); $date=date("Y-m-d");
+      if ($result = mysqli_query($mysqli, "INSERT INTO orders (id, name, userid, date, status, token) VALUES (NULL, 'Online Order', '$userId', '$date', '1', '$temptoken')")) {
+        if($result = mysqli_query($mysqli, "SELECT id From orders where token='$temptoken'")){
+        while($res = mysqli_fetch_array($result)){
+            $activeOrder=$res['id'] ; //order id is used to handle persistent cart
+          }
+        }
+      }
+    }
+
+    // create cart
+    $_SESSION['cart']=$activeOrder;
+  }
+}
+
+
+//UserDefined Functions
+
+// function to generate random token
 function getToken($length){
    $token = "";
    $codeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -29,6 +67,28 @@ function getToken($length){
   for ($i=0; $i < $length; $i++) {
       $token .= $codeAlphabet[random_int(0, $max-1)];
   }
+
+  return $token;
+}
+
+// function to generate universally unique token >= 16 bit
+function getUToken($bit=16){
+   $token = "";
+   if ($bit>16) {
+     $length=$bit-11;
+   } else {
+     $length=5;
+   }
+
+   $codeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+   $codeAlphabet.= "abcdefghijklmnopqrstuvwxyz";
+   $codeAlphabet.= "0123456789";
+   $max = strlen($codeAlphabet); // edited
+  for ($i=0; $i < $length; $i++) {
+      $token .= $codeAlphabet[random_int(0, $max-1)];
+  }
+
+  $token = $token.'-'.time();
 
   return $token;
 }
