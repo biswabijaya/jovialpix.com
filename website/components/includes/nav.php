@@ -25,7 +25,7 @@
                   echo '
                   <div class="cart-inline">
                     <div class="cart-inline-header">
-                      <div class="group-sm"><a class="button button-md button-default-outline-2 button-wapasha" href="#">Go to cart</a><a class="button button-md button-primary button-pipaluk" href="#">Checkout</a></div>
+                      <div class="group-sm"><a id="checkout" class="button button-md button-primary button-pipaluk" href="app/checkout">Checkout</a></div>
                     </div>';
                   if($result = mysqli_query($mysqli, "SELECT * From orderitems where orderid=$cartid")){
                     while($res = mysqli_fetch_array($result)){
@@ -71,9 +71,9 @@
                             <div>
                               <div class="group-xs group-inline-middle">
                                 <div class="table-cart-stepper">
-                                  <input id="'.$res['id'].'" class="form-input" type="number" data-zeros="true" data-price="'.$designPrice.'" onchange="updatecart('.$res['id'].')" value="'.$res['quantity'].'" min="1" max="10">
+                                  <input id="'.$res['id'].'" class="form-input" type="number" data-price="'.$designPrice.'" onchange="updatecart('.$res['id'].')" value="'.$res['quantity'].'" max="10">
                                 </div>
-                                <h6 class="cart-inline-title"> Rs<span id="'.$res['id'].'price">'.$designPrice.'</span</h6>
+                                <h6 class="cart-inline-title"> Rs<span id="'.$res['id'].'price">'.$designPrice*$res['quantity'].'</span</h6>
                               </div>
                             </div>
                           </div>
@@ -81,22 +81,17 @@
                       </div>
                     </div>';
                     $itemCount++;
-                    $totalAmount+=$designPrice;
+                    $totalAmount+=$designPrice*$res['quantity'];
                     }
                   }
-                  echo' <script> $("#cartitemcount").html("'.$itemCount.'");</script>
+                  echo' <script> $("#cartitemcount").html("'.$itemCount.'"); if(parseInt($("#cartitemcount").html())==0){$("#checkout").slideUp();}</script>
                     <div class="cart-inline-footer">
-                      <h5 class="cart-inline-title">In cart:<span id="cartinlineitemcount"> '.$itemCount.' </span> Product(s) </h5>
-                      <h6 class="cart-inline-title">Total price: Rs<span id="cartinlinetotalprice" data-value="'.$totalAmount.'">'.money_format('%!i', $totalAmount).'</span></h6>
+                      <p class="mt-1 cart-inline-title">Product(s) : <span id="cartinlineitemcount"> '.$itemCount.' </span>  </p>
+                      <p class="mt-1 cart-inline-title">Price: Rs<span id="cartinlinetotalprice" data-value="'.$totalAmount.'">'.money_format('%!i', $totalAmount).'</span> </p><p class="mt-1">(excl. shipping charges & GST )</p>
                     </div>
                   </div>';
                 } else {
-                  echo '
-                  <div class="cart-inline">
-                    <div class="cart-inline-header">
-                      <div class="group-sm"><a class="button button-md button-default-outline-2 button-wapasha" href="#" onclick="loadlogin()">Please Login</div>
-                    </div>
-                  </div>';
+                  echo '';
                 }
                 ?>
 
@@ -193,7 +188,7 @@
     var quantity = $("#"+id).val();
     var finalprice = price*quantity
     var diff = initialprice-finalprice;
-    updateOrderQtyinDB(id,qty);
+    updateOrderQtyinDB(id,quantity);
 
     $("#"+id+"price").html(finalprice);
 
@@ -201,23 +196,23 @@
       $("#"+id+"div").slideUp();
       var qty = parseInt($("#cartitemcount").html());
       qty-=1;
-
-      var prc = parseInt($("#cartinlinetotalprice").html());
-
       $("#cartinlineitemcount").html(qty);
-      $("#cartinlinetotalprice").html(prc+diff);
+
+      if(qty==0){
+        $("#checkout").slideUp();
+      }
     }
-
-
+      var prc = parseInt($("#cartinlinetotalprice").html());
+      $("#cartinlinetotalprice").html(prc-diff);
   }
 
-  function updateOrderQtyinDB(id,qty){
+  function updateOrderQtyinDB(idn,qtyn){
     $.ajax({
       url:'updatebyajax.php',
       type:'GET',
       data:{
-        id:id,
-        qty:qty,
+        id:idn,
+        qty:qtyn,
         action:'updateorderquantity',
       },
       dataType:'html',   //expect html to be returned

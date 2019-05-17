@@ -6,7 +6,7 @@ if (isset($_GET['action']) and $_GET['action']=='updateorderquantity') {
   $quantity=$_GET['qty'];
   if ($quantity>0) {
     if ($resul = mysqli_query($mysqli, "UPDATE productitems set quantity='$quantity' where id=$id")) {
-      echo "Quantity Update";
+      echo "Quantity Updated";
     }else {
       echo "Quantity Update Not Success";
     }
