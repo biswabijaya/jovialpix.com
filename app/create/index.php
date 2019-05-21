@@ -52,13 +52,28 @@ if (!isset($_SESSION['designid'])) {
     
     
     
+    //modify array sequence in $imgarray for print as book
     
+    /* 
+    if($type=='book'){
+      $arrsequence[]={12,1, 10,3,8,52,8,4,9,6,7} - index+1
+      for($is=0;$is<12;$is++){
+        $arrsequenceval=$arrsequence[$is]
+        $newimgarray[$is]=$imgarray[$arrsequenceval];
+      } unset($imgarray); $imgarray=$newimgarray; 
+    }
+    
+    now modify the pdf maker funtion to create 2 photos in one page
+    
+    */
 
     //$outputname=time().'-'.$_SESSION['id'].'-'.$designid.".pdf";
     //$outputDir="prints/".$outputname;
     //$pdf = new Imagick($images);
     //$pdf->setImageFormat('pdf');
     //$pdf->writeImages($outputDir, true);
+    
+    
     
     for($i=1; $i<$c; $i++) {
         $img_nm = $imgarray[$i];
